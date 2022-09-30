@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 continue
             
             new_name = series_name + " Vol. " + volume_number_str + " Ch. " + chapter_number_str
-            if chapter_title_str is not None:
+            if chapter_title_str is not None and chapter_title_str != series_name:
                 new_name = new_name + " " + chapter_title_str
             new_name = new_name + ".cbz"
             print("new_name: {}".format(new_name))
