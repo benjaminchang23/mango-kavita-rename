@@ -17,14 +17,14 @@ def ReadInputJson(jsonFile):
     return target_directory
 
 def GetChapterChapterNum(chapter_name : str) -> str:
-    search_res = reg_search("^.*Vol\. [0-9]+ Ch\. ([0-9\.]+?)\.cbz$", chapter_name)
+    search_res = reg_search("^.*Ch\. ([0-9\.]+?)\.cbz$", chapter_name)
     if search_res is not None:
         return search_res.group(1)
 
     return None
 
 def GetChapterTitle(chapter_name : str) -> str:
-    search_res = reg_search("^(.+?) Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz$", chapter_name)
+    search_res = reg_search("^(.+?).*Ch\. [0-9\.]+\.cbz$", chapter_name)
     if search_res is not None:
         return search_res.group(1)
 
@@ -47,6 +47,8 @@ def IsUnmodifiedChapter(dir_entry : str, series_name : str) -> bool:
     path_str = os.path.basename(dir_entry.path)
     # only get things that do not start with series name
     if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{} Vol\. [0-9]+ Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
+        return True
+    if reg_match("^.*Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{} Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
         return True
     return False
 
@@ -75,12 +77,15 @@ if __name__ == "__main__":
             chapter_number_str = GetChapterChapterNum(chapter_name)
             chapter_title_str = GetChapterTitle(chapter_name)
 
-            # title is allowed to be None
-            if chapter_number_str is None or volume_number_str is None:
-                print("warn: series: {} chapter: {} fail regex search".format(series_name, chapter_name))
+            # chapter number must not be none
+            if chapter_number_str is None:
+                print("warn: series: {} chapter: {} fail regex search for chapter number str".format(series_name, chapter_name))
                 continue
             
-            new_name = series_name + " Vol. " + volume_number_str + " Ch. " + chapter_number_str
+            new_name = series_name
+            if volume_number_str is not None:
+                new_name = new_name + " Vol. " + volume_number_str
+            new_name = new_name + " Ch. " + chapter_number_str
             if chapter_title_str is not None and chapter_title_str != series_name:
                 new_name = new_name + " " + chapter_title_str
             new_name = new_name + ".cbz"
