@@ -17,21 +17,21 @@ def ReadInputJson(jsonFile):
     return target_directory
 
 def GetChapterChapterNum(chapter_name : str) -> str:
-    search_res = reg_search("^.*Vol\. [0-9]+ Ch\. ([0-9]+?)\.cbz$", chapter_name)
+    search_res = reg_search("^.*Vol\. [0-9]+ Ch\. ([0-9\.]+?)\.cbz$", chapter_name)
     if search_res is not None:
         return search_res.group(1)
 
     return None
 
 def GetChapterTitle(chapter_name : str) -> str:
-    search_res = reg_search("^(.+?) Vol\. [0-9]+ Ch\. [0-9]+\.cbz$", chapter_name)
+    search_res = reg_search("^(.+?) Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz$", chapter_name)
     if search_res is not None:
         return search_res.group(1)
 
     return None
 
 def GetChapterVolumeNum(chapter_name : str) -> str:
-    search_res = reg_search("^.*Vol\. ([0-9]+?) Ch\. [0-9]+\.cbz$", chapter_name)
+    search_res = reg_search("^.*Vol\. ([0-9]+?) Ch\. [0-9\.]+\.cbz$", chapter_name)
     if search_res is not None:
         return search_res.group(1)
 
@@ -46,7 +46,7 @@ def GetUnmodifiedChapterList(target_directory : str, series_name : str) -> List[
 def IsUnmodifiedChapter(dir_entry : str, series_name : str) -> bool:
     path_str = dir_entry.path
     # only get things that do not start with series name
-    if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9]+\.cbz$", path_str) and not reg_match("^{} Vol\. [0-9]+ Ch\. [0-9]+.*\.cbz$".format(series_name), path_str):
+    if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{} Vol\. [0-9]+ Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
         return True
     return False
 
