@@ -1,4 +1,5 @@
 import argparse
+from distutils.log import debug
 import json
 import os
 from typing import List
@@ -8,7 +9,18 @@ from re import search as reg_search
 
 parser = argparse.ArgumentParser(description="modify directory structure of mango output.")
 parser.add_argument("--inputfields", required=True, help="JSON file containing all the required fields.")
+parser.add_argument("--debug", required=False, action="store_true", help="debug printout.")
+
 args = parser.parse_args()
+
+debug = False
+if args.debug:
+    print("allow debug")
+    debug = True
+
+def DebugPrint(output : str):
+    if debug:
+        print(output)
 
 def ReadInputJson(jsonFile):
     fp = open(jsonFile, "r")
@@ -24,7 +36,12 @@ def GetChapterChapterNum(chapter_name : str) -> str:
     return None
 
 def GetChapterTitle(chapter_name : str) -> str:
-    search_res = reg_search("^(.+?).*Ch\. [0-9\.]+\.cbz$", chapter_name)
+    if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz", chapter_name):
+        DebugPrint("with Vol. : {}".format(chapter_name))
+        search_res = reg_search("^(.+?) Vol. [0-9]+ Ch\. [0-9\.]+\.cbz$", chapter_name)
+    elif reg_match("^.*Ch\. [0-9\.]+\.cbz$", chapter_name):
+        DebugPrint("without Vol : {}".format(chapter_name))
+        search_res = reg_search("^(.+?).*Ch\. [0-9\.]+\.cbz$", chapter_name)
     if search_res is not None:
         return search_res.group(1)
 
@@ -47,8 +64,10 @@ def IsUnmodifiedChapter(dir_entry : str, series_name : str) -> bool:
     path_str = os.path.basename(dir_entry.path)
     # only get things that do not start with series name
     if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{} Vol\. [0-9]+ Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
+        DebugPrint("with Vol.: {}".format(path_str))
         return True
     if reg_match("^.*Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{}.*Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
+        DebugPrint("without Vol.: {}".format(path_str))
         return True
     return False
 
