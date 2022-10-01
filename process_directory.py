@@ -37,12 +37,18 @@ def GetChapterChapterNum(chapter_name : str) -> str:
 
 def GetChapterTitle(chapter_name : str) -> str:
     if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz", chapter_name):
-        DebugPrint("with Vol. : {}".format(chapter_name))
+        DebugPrint("with Vol. title check: {}".format(chapter_name))
         search_res = reg_search("^(.+?) Vol. [0-9]+ Ch\. [0-9\.]+\.cbz$", chapter_name)
+    elif reg_match("^.+ Ch\. [0-9\.]+\.cbz$", chapter_name):
+        DebugPrint("without Vol. title check: {}".format(chapter_name))
+        search_res = reg_search("^(.+?) Ch\. [0-9\.]+\.cbz$", chapter_name)
     elif reg_match("^.*Ch\. [0-9\.]+\.cbz$", chapter_name):
-        DebugPrint("without Vol : {}".format(chapter_name))
-        search_res = reg_search("^(.+?).*Ch\. [0-9\.]+\.cbz$", chapter_name)
+        DebugPrint("without Vol. or space title check: {}".format(chapter_name))
+        search_res = reg_search("^(.*?)Ch\. [0-9\.]+\.cbz$", chapter_name)
+    else:
+        print("can not match: {}".format(chapter_name))
     if search_res is not None:
+        DebugPrint(search_res.group(1))
         return search_res.group(1)
 
     return None
@@ -64,10 +70,10 @@ def IsUnmodifiedChapter(dir_entry : str, series_name : str) -> bool:
     path_str = os.path.basename(dir_entry.path)
     # only get things that do not start with series name
     if reg_match("^.*Vol\. [0-9]+ Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{} Vol\. [0-9]+ Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
-        DebugPrint("with Vol.: {}".format(path_str))
+        DebugPrint("with Vol. modified check: {}".format(path_str))
         return True
     if reg_match("^.*Ch\. [0-9\.]+\.cbz$", path_str) and not reg_match("^{}.*Ch\. [0-9\.]+.*\.cbz$".format(series_name), path_str):
-        DebugPrint("without Vol.: {}".format(path_str))
+        DebugPrint("without Vol. modified check: {}".format(path_str))
         return True
     return False
 
@@ -111,5 +117,5 @@ if __name__ == "__main__":
             print("new_name: {}".format(new_name))
             abs_new = os.path.join(os.path.dirname(chapter_path), new_name)
             os.rename(chapter_path, abs_new)
-            print("{} renamed to {}".format(chapter_path, abs_new))
+            print("{} renamed to {}".format(os.path.basename(chapter_path), os.path.basename(abs_new)))
             
